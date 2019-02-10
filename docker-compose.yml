@@ -14,7 +14,6 @@ services:
             - ./nginx/html:/usr/share/nginx/html/
         links:
             - php
-            - memcached
     
     mysql:
         image: mariadb
@@ -46,6 +45,7 @@ services:
             - ./nginx/www:/var/www
         links:
             - mysql
+            - memcached
 
     memcached:
         image: memcached:${MEMCACHED_VERSION}
