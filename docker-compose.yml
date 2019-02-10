@@ -16,17 +16,25 @@ services:
             - php
     
     mysql:
-        image: mysql:latest
+        image: mariadb
         ports:
             - "3306:3306"
         container_name: mysql_noc1
         environment:
-            - MYSQL_ROOT_PASSWORD=155155
-            - MYSQL_DATABASE=noc1
-            - MYSQL_USER=noc1
-            - MYSQL_PASSWORD=255255
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
         volumes:
             - ./mysql:/var/lib/mysql
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin_noc1
+        ports:
+            - "8090:80"
+        links:
+            - mysql:db
 
     php:
         build: ./php
@@ -36,10 +44,8 @@ services:
         links:
             - mysql
 
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        container_name: phpmyadmin_noc1
+    memcached:
+        image: memcached:${MEMCACHED_VERSION}
+        container_name: memcached_noc1
         ports:
-            - "8090:80"
-        links:
-            - mysql:db
+            - 11212:11211
