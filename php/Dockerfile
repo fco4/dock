@@ -1,5 +1,13 @@
 FROM php:7.2-fpm
 
+RUN apt-get -y install libz-dev libmemcached-dev libmemcached11 libmemcachedutil2 build-essential \
+        && pecl install memcached-2.2.0 \
+        && echo extension=memcached.so >> /usr/local/etc/php/conf.d/memcached.ini \
+        && apt-get remove -y build-essential libmemcached-dev libz-dev \
+        && apt-get autoremove -y \
+        && apt-get clean \
+        && rm -rf /tmp/pear
+
 RUN apt-get update && apt-get install -y \
         curl \
         wget \
