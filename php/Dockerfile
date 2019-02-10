@@ -1,18 +1,38 @@
 FROM php:7.2-fpm
 
-RUN apt-get update && apt-get install -y \
-        curl \
-        wget \
-        git \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-    && docker-php-ext-install -j$(nproc) iconv \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd
+# Install the PHP extensions we need
+RUN apt-get update && \
+apt-get install -y --no-install-recommends \
+    curl \
+    wget \
+    git \
+    libmemcached-dev \
+    libz-dev \
+    libpq-dev \
+    libjpeg-dev \
+    libpng12-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    libssl-dev \
+    libmcrypt-dev && \
+    docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr && \
+    docker-php-ext-install gd mysqli opcache intl
 
-RUN pecl install memcached \
-    && docker-php-ext-enable memcached
+# Install Memcached
+RUN curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-   dev/php-memcached/archive/php7.tar.gz" && \
+mkdir -p memcached && \
+tar -C memcached -zxvf /tmp/memcached.tar.gz --strip 1 && \
+( \
+    cd memcached && \
+    phpize && \
+    ./configure && \
+    make -j$(nproc) && \
+    make install \
+) && \
+rm -r memcached && \
+rm /tmp/memcached.tar.gz && \
+docker-php-ext-enable memcached
+
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
